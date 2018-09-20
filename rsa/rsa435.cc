@@ -18,10 +18,14 @@ int main(){
 	 * one.  Your C++ compiler might need a command-line option to compile
 	 * code that uses exceptions. */
 	
-	prime_gen();
-	/*try {
+	
+	try {
 	  	
-      std::cout << "a couple of test cases for 3460:435/535 Algorithms!!!\n";
+		prime_gen();
+
+		/*for(int i = 1; i < 23; i++)
+			std::cout << modexp(i,22,23) << std::endl;*/
+      /*std::cout << "a couple of test cases for 3460:435/535 Algorithms!!!\n";
       BigUnsigned big1 = BigUnsigned(1);
       for (int i=0;i<400;i++) {
          big1 = big1*10 +rand();
@@ -39,12 +43,12 @@ int main(){
       BigUnsigned big3 = big1*big2;
       std::cout <<big3<< std::endl;
       std::cout << "my big3/big2 !!!\n";
-      std::cout <<big3/big2<< std::endl;
+      std::cout <<big3/big2<< std::endl;*/
       
 	} catch(char const* err) {
 		std::cout << "The library threw an exception:\n"
 			<< err << std::endl;
-	}*/
+	}
 
 	return 0;
 }
@@ -53,11 +57,11 @@ void prime_gen() {
 	
 	srand(time(0));
 
-	BigUnsigned p = BigUnsigned(1);
+	BigInteger p = BigInteger(1);
 
-	BigUnsigned q = BigUnsigned(1);
+	BigInteger q = BigInteger(1);
 
-	for (int i=0; i<400; i++) {
+	for (int i=0; i< 400; i++) {
         p = p*10 +rand();
       	q = q*10 +rand();
     }
@@ -65,4 +69,15 @@ void prime_gen() {
 	std::cout << p << std::endl;
 	std::cout << q << std::endl;
 
+	BigInteger i = BigInteger(rand()) % (p - BigInteger(1));
+
+	BigUnsigned exponent = BigUnsigned(p.getMagnitude()) - BigUnsigned(1);
+
+	
+	if(modexp(i, exponent, BigUnsigned(p.getMagnitude())) != 1)
+		std::cout << "Not prime" << std::endl;
+	else
+		std::cout << "Is prime" << std::endl; 
+	
 }
+
