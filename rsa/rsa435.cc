@@ -5,12 +5,16 @@
 #include <iostream>
 #include <stdlib.h> 
 #include <time.h>
+#include <assert.h>
+#include <vector>
 
 
 // 'BigIntegerLibrary.hh' includes all of the library headers.
 #include "BigIntegerLibrary.hh"
 
-void prime_gen();
+BigInteger prime_gen();
+bool fermat_test(BigInteger&);
+
 
 int main(){
 	/* The library throws 'const char *' error messages when things go
@@ -20,8 +24,7 @@ int main(){
 	
 	
 	try {
-	  	
-		prime_gen();
+		std::cout << prime_gen() << std::endl;
 
 		/*for(int i = 1; i < 23; i++)
 			std::cout << modexp(i,22,23) << std::endl;*/
@@ -53,31 +56,37 @@ int main(){
 	return 0;
 }
 
-void prime_gen() {
+BigInteger prime_gen() {
 	
 	srand(time(0));
 
-	BigInteger p = BigInteger(1);
+	BigInteger prime;
 
-	BigInteger q = BigInteger(1);
+	do{
+		prime  = BigInteger(1);
 
-	for (int i=0; i< 400; i++) {
-        p = p*10 +rand();
-      	q = q*10 +rand();
-    }
+		for (int i=0; i< 400; i++) {
+        	prime = prime*10 +rand(); 	
+		}	
 
-	std::cout << p << std::endl;
-	std::cout << q << std::endl;
-
-	BigInteger i = BigInteger(rand()) % (p - BigInteger(1));
-
-	BigUnsigned exponent = BigUnsigned(p.getMagnitude()) - BigUnsigned(1);
-
+	}while(!(fermat_test(prime)));
 	
-	if(modexp(i, exponent, BigUnsigned(p.getMagnitude())) != 1)
-		std::cout << "Not prime" << std::endl;
-	else
-		std::cout << "Is prime" << std::endl; 
 	
+	return prime;
+}
+
+bool fermat_test(BigInteger &num) {
+
+	BigUnsigned exponent = BigUnsigned(num.getMagnitude()) - BigUnsigned(1);
+
+	for(int i = 2; i < 5; i++){
+		if(modexp(BigInteger(i), exponent, BigUnsigned(num.getMagnitude())) != 1){
+			std::cout <<"Is Not Prime " << std::endl;
+			return false;
+			
+		}
+	}
+
+	return true;
 }
 
