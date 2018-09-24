@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
    std::cout << "big a*b = " <<a*b<<"\n";
 
    //Second part of your project starts here
-   if (argc != 3 || (argv[1][0]!='s' && argv[1][0]!='v')) 
-      std::cout << "wrong format! should be \"a.exe s filename\"";
-   else {
+   if (argc != 3 || (argv[1][0]!='s' && argv[1][0]!='v')){ 
+      std::cout << "wrong format! should be \"a.exe s filename\"" << std::endl;
+   } else {
       std::string filename = argv[2];
       
             
@@ -53,7 +53,8 @@ int main(int argc, char *argv[])
         
       if (argv[1][0]=='s') {
          std::cout << "\n"<<"Need to sign the doc.\n";
-         //.....
+         
+         std::cout << sha256(memblock) << std::endl;
          
       }
       else {
