@@ -10,8 +10,8 @@
 
 bool get_key(const std::string&, BigInteger&,BigInteger&);
 void read_line(std::fstream&,BigInteger&);
-void save_signature(BigUnsigned&);
-void get_signature(BigUnsigned&);
+void save_signature(std::string,BigUnsigned&);
+BigUnsigned get_signature(std::string);
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
    std::cout << "big a*b = " <<a*b<<"\n";
 
    //Second part of your project starts here
-   if (argc != 3 || (argv[1][0]!='s' && argv[1][0]!='v')){ 
+   if (argc < 3 || (argv[1][0]!='s' && argv[1][0]!='v')){ 
       std::cout << "wrong format! should be \"a.exe s filename\"" << std::endl;
    } else {
       std::string filename = argv[2];
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
          BigUnsigned signature = modexp(message,BigUnsigned(d.getMagnitude()), BigUnsigned(n.getMagnitude()));
          
-         save_signature(signature);
+         save_signature(argv[2],signature);
       }
       else {
          std::cout << "\n"<<"Need to verify the doc.\n";
@@ -84,9 +84,7 @@ int main(int argc, char *argv[])
          BigUnsigned signature = BigUnsignedInABase(hashed_file, 16);
 
          //get saved signature
-         BigUnsigned saved;
-
-         get_signature(saved);
+         BigUnsigned saved = get_signature(argv[3]);
 
          BigInteger e,n;
 
@@ -138,9 +136,11 @@ bool get_key(const std::string& filename, BigInteger& first, BigInteger& second)
    return true;
 }
 
-void save_signature(BigUnsigned& signature)
+void save_signature(std::string filename, BigUnsigned& signature)
 {
-   std::fstream out ("file.txt.signature", std::fstream::out | std::fstream::trunc);
+   filename.append(".signature");
+
+   std::fstream out (filename.c_str(), std::fstream::out | std::fstream::trunc);
 
    if(out.is_open())
       out << signature;
@@ -150,11 +150,11 @@ void save_signature(BigUnsigned& signature)
    out.close();
 }
 
-void get_signature(BigUnsigned& saved_signature)
+BigUnsigned get_signature(std::string filename)
 {
-   std::fstream in("file.txt.signature", std::fstream::in);
+   std::fstream in(filename.c_str(), std::fstream::in);
 
-   
+   BigUnsigned saved_signature;
 
    if(in.is_open()){
       std::string temp;
@@ -167,4 +167,6 @@ void get_signature(BigUnsigned& saved_signature)
       std::cout << "Could not open file file.txt.signature" << std::endl;
 
    in.close();
+
+   return saved_signature;
 }
