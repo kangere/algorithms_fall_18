@@ -72,8 +72,7 @@ BigInteger prime_gen() {
         	prime = prime*10 +rand(); 	
 		}	
 
-		t = clock() - t;
-		std::cout << "Generating prime number, time elapsed " << ((float)t) / CLOCKS_PER_SEC << "s ..." << std::endl;
+		std::cout << "Generating prime number, time elapsed " << ((float)(clock() - t)) / CLOCKS_PER_SEC << "s ..." << std::endl;
 	
 	}while(!(fermat_test(prime)));
 	
