@@ -8,7 +8,11 @@
 #include "sha256.h"
 #include "BigIntegerLibrary.hh"
 
- 
+bool get_key(const std::string&, BigInteger&,BigInteger&);
+void read_line(std::fstream&,BigInteger&);
+void save_signature(BigUnsigned&);
+void get_signature(BigUnsigned&);
+
 int main(int argc, char *argv[])
 {
    //demonstrating how sha256 works
@@ -54,15 +58,113 @@ int main(int argc, char *argv[])
       if (argv[1][0]=='s') {
          std::cout << "\n"<<"Need to sign the doc.\n";
          
-         std::cout << sha256(memblock) << std::endl;
+         std::string hashed_file = sha256(memblock); 
+
+         BigUnsigned  message  = BigUnsignedInABase(hashed_file, 16);
          
+         std::cout << "hashed message: " << message << std::endl;
+         
+         BigInteger d,n;
+
+         if(!get_key("d_n.txt",d,n)){
+            std::cout << "Could not open file d_n.txt, failed to sign " << argv[2] << std::endl;
+            return 0; 
+         }
+
+         BigUnsigned signature = modexp(message,BigUnsigned(d.getMagnitude()), BigUnsigned(n.getMagnitude()));
+         
+         save_signature(signature);
       }
       else {
          std::cout << "\n"<<"Need to verify the doc.\n";
-         //.....
          
+         //get hash value of file 
+         std::string hashed_file = sha256(memblock);
+
+         BigUnsigned signature = BigUnsignedInABase(hashed_file, 16);
+
+         //get saved signature
+         BigUnsigned saved;
+
+         get_signature(saved);
+
+         BigInteger e,n;
+
+         if(!get_key("e_n.txt",e,n)){
+            std::cout << "Could not open file e_n.txt, failed to verify signature " << std::endl;
+            return 0;
+         }
+
+         BigUnsigned saved_signature = modexp(saved,BigUnsigned(e.getMagnitude()), BigUnsigned(n.getMagnitude()));
+         
+         if(signature == saved_signature){
+            std::cout << "Signature is verified " << std::endl;
+         }
+         else{
+            std::cout << "Signature is not verified" <<std::endl;
+            std::cout << "Saved signature: " << saved_signature << std::endl;
+            std::cout << "Actual signature: " << signature <<std::endl;
+         }
       }
       delete[] memblock;
     }
     return 0;
+}
+
+void read_line(std::fstream& in, BigInteger& num)
+{
+   std::string temp;
+
+   std::getline(in,temp);
+
+   num = stringToBigInteger(temp);
+}
+
+bool get_key(const std::string& filename, BigInteger& first, BigInteger& second)
+{
+   std::fstream in(filename.c_str(),std::fstream::in);
+
+   if(!in.is_open()){
+      in.close();
+      return false;
+   }
+   
+
+   read_line(in,first);
+   read_line(in,second); 
+      
+   in.close();
+
+   return true;
+}
+
+void save_signature(BigUnsigned& signature)
+{
+   std::fstream out ("file.txt.signature", std::fstream::out | std::fstream::trunc);
+
+   if(out.is_open())
+      out << signature;
+   else
+      std::cout << "Could not save signature" << std::endl;
+
+   out.close();
+}
+
+void get_signature(BigUnsigned& saved_signature)
+{
+   std::fstream in("file.txt.signature", std::fstream::in);
+
+   
+
+   if(in.is_open()){
+      std::string temp;
+
+      std::getline(in,temp);
+
+      saved_signature = stringToBigUnsigned(temp);
+   }
+   else
+      std::cout << "Could not open file file.txt.signature" << std::endl;
+
+   in.close();
 }
