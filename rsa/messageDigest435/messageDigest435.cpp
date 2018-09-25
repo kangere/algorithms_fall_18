@@ -15,17 +15,6 @@ BigUnsigned get_signature(std::string);
 
 int main(int argc, char *argv[])
 {
-   //demonstrating how sha256 works
-   std::string input = "testing";
-   std::string output1 = sha256(input);
-   std::cout << "sha256('"<< input << "'):" << output1 << "\n";
-   
-   //demo bigInt works here
-   BigUnsigned a = stringToBigUnsigned("124338907642982722929222542626327282");
-   BigUnsigned b = stringToBigUnsigned("124338907642977775546469426263278643");
-   std::cout << "big a = " <<a<<"\n";
-   std::cout << "big b = " <<b<<"\n";
-   std::cout << "big a*b = " <<a*b<<"\n";
 
    //Second part of your project starts here
    if (argc < 3 || (argv[1][0]!='s' && argv[1][0]!='v')){ 
