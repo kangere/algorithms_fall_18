@@ -51,8 +51,6 @@ int main(int argc, char *argv[])
 
          BigUnsigned  message  = BigUnsignedInABase(hashed_file, 16);
          
-         std::cout << "hashed message: " << message << std::endl;
-         
          BigInteger d,n;
 
          if(!get_key("d_n.txt",d,n)){
@@ -63,6 +61,8 @@ int main(int argc, char *argv[])
          BigUnsigned signature = modexp(message,BigUnsigned(d.getMagnitude()), BigUnsigned(n.getMagnitude()));
          
          save_signature(argv[2],signature);
+
+         std::cout << "File signed succesfully" << std::endl;
       }
       else {
          std::cout << "\n"<<"Need to verify the doc.\n";

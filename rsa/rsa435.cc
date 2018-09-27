@@ -25,29 +25,6 @@ int main(){
 	
 	try {
 		keygen();
-
-		
-		/*for(int i = 1; i < 23; i++)
-			std::cout << modexp(i,22,23) << std::endl;*/
-      /*std::cout << "a couple of test cases for 3460:435/535 Algorithms!!!\n";
-      BigUnsigned big1 = BigUnsigned(1);
-      for (int i=0;i<400;i++) {
-         big1 = big1*10 +rand();
-      }
-      std::cout << "my big1 !!!\n";
-      std::cout << big1 << std::endl;
-
-      BigUnsigned big2 = BigUnsigned(1);
-      for (int i=0;i<400;i++) {
-         big2 = big2*10 +rand();
-      }
-      std::cout << "my big2 !!!\n";
-      std::cout << big2<< std::endl;
-      std::cout << "my big3 = big1*big2 !!!\n";
-      BigUnsigned big3 = big1*big2;
-      std::cout <<big3<< std::endl;
-      std::cout << "my big3/big2 !!!\n";
-      std::cout <<big3/big2<< std::endl;*/
       
 	} catch(char const* err) {
 		std::cout << "The library threw an exception:\n"
@@ -68,7 +45,7 @@ BigInteger prime_gen() {
 	do{
 		prime  = BigInteger(1);
 
-		for (int i=0; i< 400; i++) {
+		for (int i=0; i< 200; i++) {
         	prime = prime*10 +rand(); 	
 		}	
 
@@ -98,9 +75,6 @@ void keygen() {
 	BigInteger p = prime_gen();
 
 	BigInteger q = prime_gen();
-
-	std::cout << "P = " << p << std::endl;
-	std::cout << "Q = " << q << std::endl;
 
 	if(save_key("p_q.txt", p,q)){
 		std::cout << "file p_q.txt saved" <<std::endl;
