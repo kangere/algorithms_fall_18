@@ -18,7 +18,11 @@ public:
 	int get_y () const
 	{return m_y;}
 
-	friend std::ostream& operator<<(std::ostream& os, const point& p);
+	friend std::ostream& operator<<(std::ostream&, const point&);
+
+	bool operator==(const point&);
+
+	void print();
 };
 
-point* find_vect(point* p1,point* p2);
+point* find_vect(point*,point*);
