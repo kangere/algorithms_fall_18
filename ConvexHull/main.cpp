@@ -12,12 +12,7 @@
 void graham_scan(std::vector<point*>&);
 void jarvis_march(std::vector<point*>&);
 void read_file(std::string, std::vector<point*>&);
-
-int vec_direction(point* v1,point* v2)
-{
-	return (v1->get_x() * v2->get_y()) - (v2->get_x() * v1->get_y());
-}
-
+void print_file(std::string, std::vector<point*>&);
 
 
 int main(int argc, char const *argv[])
@@ -107,6 +102,11 @@ void graham_scan(std::vector<point*> &points)
 	for(auto point : hull)
 		point->print();
 
+}
+
+void jarvis_march(std::vector<point*>& points)
+{
+	
 }
 
 

@@ -26,3 +26,4 @@ public:
 };
 
 point* find_vect(point*,point*);
+int vec_direction(point*,point*);
