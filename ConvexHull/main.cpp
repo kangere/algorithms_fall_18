@@ -15,6 +15,7 @@ void read_file(std::string, std::vector<point*>&);
 void print_file(std::string, std::vector<point*>&);
 
 
+
 int main(int argc, char const *argv[])
 {
 	std::vector<point*> points;
@@ -25,7 +26,9 @@ int main(int argc, char const *argv[])
 	for(auto p : points)
 		p->print();
 
-	graham_scan(points);
+	// graham_scan(points);
+
+	jarvis_march(points);
 
 	return 0;
 }
@@ -106,7 +109,57 @@ void graham_scan(std::vector<point*> &points)
 
 void jarvis_march(std::vector<point*>& points)
 {
-	
+	//find left most point
+	point* p0 = points[0];
+
+	for(auto point : points)
+	{
+		if(point->get_x() < p0->get_x())
+			p0 = point;
+	}
+
+	std::vector<point*> hull;
+
+	hull.push_back(p0);
+
+	for(size_t i = 0; i < points.size(); i++)
+	{
+		
+		point* curr = hull.back();
+		point* v1 = find_vect(curr,new point(curr->get_x(),curr->get_y()+2));
+
+		float polar = 0.0;
+		point* hull_point = nullptr;
+
+		point* v2 = nullptr;
+
+		for(auto point : points)
+		{
+			if(std::find(hull.begin(), hull.end(),point) != hull.end())
+				continue;
+
+			v2 = find_vect(curr,point);
+			
+
+			if(polar == 0){
+				polar = polar_angle(v1,v2);
+			} else {
+				if(polar_angle(v1,v2) < polar)
+				{
+					polar = polar_angle(v1,v2);
+					hull_point = point; 
+				}
+			}
+
+			
+		}
+
+		if(hull_point)
+			hull.push_back(hull_point);
+	}
+
+	for(auto point : hull)
+		point->print();
 }
 
 

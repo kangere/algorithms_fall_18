@@ -27,3 +27,7 @@ public:
 
 point* find_vect(point*,point*);
 int vec_direction(point*,point*);
+
+//find polar angle between vectors
+float polar_angle(point*,point*);
+float magnitude(point*);
