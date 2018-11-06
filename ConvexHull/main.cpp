@@ -10,35 +10,45 @@
 #include "utils.hpp"
 
 
-void graham_scan(std::vector<point*>&);
-void jarvis_march(std::vector<point*>&);
-void quickhull(std::vector<point*>);
+using points_list = std::vector<point*>;
 
+void graham_scan(points_list&);
+void jarvis_march(points_list&);
+void quickhull(points_list&);
 
 
 
 
 int main(int argc, char const *argv[])
 {
-	std::vector<point*> points;
+	if(argc < 3 || argc > 3)
+	{
+		std::cout << "Wrong number of arguments, i.e to run program type: \"hull G filename\"" << std::endl;
+		std::cout << "where 'G' determines algorithm chosen, and 'filename' is the name of input file" << std::endl;
+	} else {
+		points_list points;
 
-	read_file("test.txt",points);
+		read_file(argv[2],points);
 
-	std::cout << "Points read from file:" << std::endl;
-	for(auto p : points)
-		p->print();
+		std::cout << "Points read from file:" << std::endl;
+		for(auto p : points)
+			p->print();
+		
+		if(*argv[1] == 'G')
+			graham_scan(points);	
+		else if(*argv[1] == 'J')
+			jarvis_march(points);
+		else if(*argv[1] == 'Q')
+			quickhull(points);		
 
-	// graham_scan(points);
-
-	// jarvis_march(points);
-
-	quickhull(points);
+	}
+	
 
 	return 0;
 }
 
 
-void graham_scan(std::vector<point*> &points)
+void graham_scan(points_list& points)
 {
 	//find p0
 	auto min_y = std::min_element(points.begin(), points.end(),
@@ -70,13 +80,9 @@ void graham_scan(std::vector<point*> &points)
 		return (p1_v->get_x() * p2_v->get_y()) > (p1_v->get_y() * p2_v->get_x());
 	});
 	
-	
-	std::cout << " Sorted points " << std::endl;
-	for(auto point : points)
-		point->print();
 
 	//vector holding points on hull
-	std::vector<point*> hull;
+	points_list hull;
 
 	//push 1st three points to stack
 	for(int i = 0; i < 3; i++)
@@ -106,7 +112,7 @@ void graham_scan(std::vector<point*> &points)
 
 }
 
-void jarvis_march(std::vector<point*>& points)
+void jarvis_march(points_list& points)
 {
 	//find left most point
 	point* p0 = points[0];
@@ -117,7 +123,7 @@ void jarvis_march(std::vector<point*>& points)
 			p0 = point;
 	}
 
-	std::vector<point*> hull;
+	points_list hull;
 
 	hull.push_back(p0);
 
@@ -162,7 +168,7 @@ void jarvis_march(std::vector<point*>& points)
 }
 
 
-void quickhull(std::vector<point*> points)
+void quickhull(points_list& points)
 {
 	if(points.size() < 2)
 		return;

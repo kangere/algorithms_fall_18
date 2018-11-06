@@ -52,7 +52,7 @@ float y_intercept(const float gradient, const point* p)
 }
 
 
-void read_file(std::string filename, std::vector<point*> &points)
+void read_file(const char* filename, points_list &points)
 {
 	std::fstream file(filename,std::ios::in);
 
@@ -82,7 +82,7 @@ void read_file(std::string filename, std::vector<point*> &points)
 
 //Finds points on hull that are on the top of the line formed
 //by the leftmost and righmost points
-void findhull_top(std::vector<point*>& hull, std::vector<point*> sub, std::pair<point*,point*> lr_p)
+void findhull_top(points_list& hull, points_list sub, lr_pair lr_p)
 {
 	if(sub.size() < 1)
 		return;
@@ -107,8 +107,8 @@ void findhull_top(std::vector<point*>& hull, std::vector<point*> sub, std::pair<
 	//structures to store points
 	//either right or left of triangle
 	//formed by the leftmost, rightmost and farthest points
-	std::vector<point*> right;
-	std::vector<point*> left;
+	points_list right;
+	points_list left;
 
 	//find left points
 	float gradient_l = get_gradient(lr_p.first,farthest_p);
@@ -140,7 +140,7 @@ void findhull_top(std::vector<point*>& hull, std::vector<point*> sub, std::pair<
 
 //Finds points on hull that are on the bottom of the line formed
 //by the leftmost and righmost points
-void findhull_bottom(std::vector<point*>& hull, std::vector<point*> sub, std::pair<point*,point*> lr_p)
+void findhull_bottom(points_list& hull, points_list sub, lr_pair lr_p)
 {
 	if(sub.size() < 1)
 		return;
@@ -165,8 +165,8 @@ void findhull_bottom(std::vector<point*>& hull, std::vector<point*> sub, std::pa
 	//structures to store points
 	//either right or left of triangle
 	//formed by the leftmost, rightmost and farthest points
-	std::vector<point*> right;
-	std::vector<point*> left;
+	points_list right;
+	points_list left;
 
 	//find left points
 	float gradient_l = get_gradient(lr_p.first,farthest_p);
