@@ -1,18 +1,20 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <utility>
+#include <tuple>
 
 
 #include "point.hpp"
+#include "utils.hpp"
 
 
 void graham_scan(std::vector<point*>&);
 void jarvis_march(std::vector<point*>&);
-void read_file(std::string, std::vector<point*>&);
-void print_file(std::string, std::vector<point*>&);
+void quickhull(std::vector<point*>);
+
+
 
 
 
@@ -28,7 +30,9 @@ int main(int argc, char const *argv[])
 
 	// graham_scan(points);
 
-	jarvis_march(points);
+	// jarvis_march(points);
+
+	quickhull(points);
 
 	return 0;
 }
@@ -37,21 +41,16 @@ int main(int argc, char const *argv[])
 void graham_scan(std::vector<point*> &points)
 {
 	//find p0
-	point *p0 = points[0];
+	auto min_y = std::min_element(points.begin(), points.end(),
+				[] (point* const p1, point* const p2)
+				{
+					if(p1->get_y() == p2->get_y())
+						return p1->get_x() < p2->get_x();
+					
+					return p1->get_y() < p2->get_y();
+				});
 
-	for(int i = 1; i < points.size(); i++)
-	{
-		point *p = points[i];
-
-		//if same y
-		if(p0->get_y() == p->get_y())
-		{
-			if(p->get_x() < p0->get_x())
-				p0 = p;
-		}
-		else if(p->get_y() < p0->get_y())
-			p0 = p;	
-	}
+	point* p0 = *min_y;
 
 	std::cout << "p0 is " << *p0 << "\n";
 
@@ -163,28 +162,62 @@ void jarvis_march(std::vector<point*>& points)
 }
 
 
-void read_file(std::string filename, std::vector<point*> &points)
+void quickhull(std::vector<point*> points)
 {
-	std::fstream file(filename,std::ios::in);
+	if(points.size() < 2)
+		return;
 
-	if(file.is_open())
-	{
-		while(!file.eof())
-		{
-			std::string line;
-			std::getline(file,line);
+	std::vector<point*> hull;
 
-			std::istringstream ss(line);
-			
-			int num1,num2;
-			ss >> num1 >> num2;
+	point *leftmost_x, *rightmost_x;
 
-			points.push_back(new point(num1,num2));
+	auto minmax = std::minmax_element(points.begin(),points.end(),
+										[](point* const p1, point* const p2)
+										{
+												return p1->get_x() < p2->get_x();
+										});
 
-		}
-	}
-	else
-	{
-		std::cout << "Could not open file!" << std::endl;
-	}
+	std::tie(leftmost_x,rightmost_x) = std::make_tuple(*minmax.first,*minmax.second);
+
+
+
+	std::cout << "leftmost: " <<*leftmost_x << " rightmost: " << *rightmost_x << std::endl; 
+
+	//add points to hull
+	hull.push_back(leftmost_x);
+	hull.push_back(rightmost_x);
+
+	//find gradient and y-intercept of line formed from points above
+	float gradient = get_gradient(leftmost_x,rightmost_x);
+	float y_int  = y_intercept(gradient,leftmost_x);
+
+	//create vectors to store points
+	//either above or below the line formed from points above
+	std::vector<point*> above_l;
+	std::vector<point*> below_l;
+
+	
+	std::for_each(points.begin(), points.end(),
+						[gradient, y_int, leftmost_x, rightmost_x, &above_l, &below_l](point* p){
+
+							if(p!= leftmost_x && p!= rightmost_x){
+								if(p->get_y() > ((gradient * p->get_x()) + y_int))
+									above_l.push_back(p);
+								else
+									below_l.push_back(p);	
+							}
+							
+						});
+
+	//find top half points on hull
+	findhull_top(hull,above_l,std::make_pair(leftmost_x,rightmost_x));
+
+	//find bottom half points on hull
+	findhull_bottom(hull,below_l,std::make_pair(leftmost_x,rightmost_x));
+
+	for(auto p : hull)
+		p->print();
+
 }
+
+

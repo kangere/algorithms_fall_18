@@ -6,4 +6,5 @@ set(CMAKE_CXX_FLAGS "-std=c++1z")
 
 add_executable( hull
 		main.cpp
-		point.cpp)
+		point.cpp
+		utils.cpp)
