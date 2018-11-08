@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
+#include <iterator>
 
 /**
 	Calculates distance from point to line
@@ -30,22 +31,13 @@ double distance(point* p_l, point* p_r, point* p)
 }
 
 
-/**
-	Calculates the gradient of the line formed between two points
-	@param p1 point forming line
-	@param p2 point forming line
-**/
 float get_gradient(const point* p1, const point* p2)
 {
 	return (static_cast<float>(p2->get_y() - p1->get_y()) 
 			/ static_cast<float>(p2->get_x() - p1->get_x())); 
 }
 
-/**
-	calculates y intercept of a line
-	@param gradient - the slope of the line
-	@param p - some point on the line
-**/
+
 float y_intercept(const float gradient, const point* p)
 {
 	return (p->get_y() - (gradient * p->get_x()));
@@ -80,12 +72,33 @@ void read_file(const char* filename, points_list &points)
 	file.close();
 }
 
+void print_file(const char* filename, points_list& hull)
+{
+	std::fstream out(filename,std::ios::out);
+
+	if(out.is_open()){
+
+		for(point* p : hull)
+			out << *p << std::endl;
+		
+	} else {
+		std::cerr << "Unable to open file" << std::endl;
+	}
+
+	out.close();
+}
+
 //Finds points on hull that are on the top of the line formed
 //by the leftmost and righmost points
-void findhull_top(points_list& hull, points_list sub, lr_pair lr_p)
+void findhull_top(points_list& hull, points_list& sub, lr_pair lr_p)
 {
 	if(sub.size() < 1)
 		return;
+	else if(sub.size() == 1){
+		auto i = std::find(hull.begin(),hull.end(),lr_p.first);
+		hull.insert(i+1,sub.back());
+		return;
+	}
 
 	point* leftmost = lr_p.first;
 	point* rightmost = lr_p.second;
@@ -110,11 +123,12 @@ void findhull_top(points_list& hull, points_list sub, lr_pair lr_p)
 	points_list right;
 	points_list left;
 
+
 	//find left points
 	float gradient_l = get_gradient(lr_p.first,farthest_p);
 	float y_int_l  = y_intercept(gradient_l,farthest_p);
 
-	std::copy_if(sub.begin(),sub.end(),left.begin(),
+	std::copy_if(sub.begin(),sub.end(),std::back_inserter(left),
 				[gradient_l,y_int_l](point* p)
 				{
 					return p->get_y() > ((gradient_l * p->get_x()) + y_int_l);
@@ -125,7 +139,7 @@ void findhull_top(points_list& hull, points_list sub, lr_pair lr_p)
 	float gradient_r = get_gradient(farthest_p,lr_p.second);
 	float y_int_r  = y_intercept(gradient_r,farthest_p);
 
-	std::copy_if(sub.begin(),sub.end(),right.begin(),
+	std::copy_if(sub.begin(),sub.end(),std::back_inserter(right),
 				[gradient_r,y_int_r](point* p)
 				{
 					return p->get_y() > ((gradient_r * p->get_x()) + y_int_r);
@@ -140,10 +154,15 @@ void findhull_top(points_list& hull, points_list sub, lr_pair lr_p)
 
 //Finds points on hull that are on the bottom of the line formed
 //by the leftmost and righmost points
-void findhull_bottom(points_list& hull, points_list sub, lr_pair lr_p)
+void findhull_bottom(points_list& hull, points_list& sub, lr_pair lr_p)
 {
 	if(sub.size() < 1)
 		return;
+	else if(sub.size() == 1){
+		auto i = std::find(hull.begin(),hull.end(),lr_p.first);
+		hull.insert(i+1,sub.back());
+		return;
+	}
 
 	point* leftmost = lr_p.first;
 	point* rightmost = lr_p.second;
@@ -168,11 +187,12 @@ void findhull_bottom(points_list& hull, points_list sub, lr_pair lr_p)
 	points_list right;
 	points_list left;
 
+
 	//find left points
 	float gradient_l = get_gradient(lr_p.first,farthest_p);
 	float y_int_l  = y_intercept(gradient_l,farthest_p);
 
-	std::copy_if(sub.begin(),sub.end(),left.begin(),
+	std::copy_if(sub.begin(),sub.end(),std::back_inserter(left),
 				[gradient_l,y_int_l](point* p)
 				{
 					return p->get_y() < ((gradient_l * p->get_x()) + y_int_l);
@@ -183,7 +203,7 @@ void findhull_bottom(points_list& hull, points_list sub, lr_pair lr_p)
 	float gradient_r = get_gradient(farthest_p,lr_p.second);
 	float y_int_r  = y_intercept(gradient_r,farthest_p);
 
-	std::copy_if(sub.begin(),sub.end(),right.begin(),
+	std::copy_if(sub.begin(),sub.end(),std::back_inserter(right),
 				[gradient_r,y_int_r](point* p)
 				{
 					return p->get_y() < ((gradient_r * p->get_x()) + y_int_r);
@@ -193,4 +213,27 @@ void findhull_bottom(points_list& hull, points_list sub, lr_pair lr_p)
 	findhull_bottom(hull,left,std::make_pair(lr_p.first, farthest_p));
 
 	findhull_bottom(hull,right,std::make_pair(farthest_p,lr_p.second));
+}
+
+bool point_above(lr_pair pair,point* p)
+{
+	float gradient = get_gradient(pair.first,pair.second);
+	float y_int  = y_intercept(gradient,pair.first);
+
+	return p->get_y() > ((gradient * p->get_x()) + y_int);
+
+}
+
+bool end_of_hull(point* p0, point* curr,points_list& points)
+{
+	points_list points_left;
+
+	for(auto p : points){
+		if(p == p0 || p == curr)
+			continue;
+		else if(!point_above(std::make_pair(p0,curr),p))
+			points_left.push_back(p);	
+	}
+
+	return points_left.size() == 0;
 }

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <utility>
 #include <tuple>
+#include <chrono>
 
 
 #include "point.hpp"
@@ -11,6 +12,7 @@
 
 
 using points_list = std::vector<point*>;
+
 
 void graham_scan(points_list&);
 void jarvis_march(points_list&);
@@ -30,16 +32,25 @@ int main(int argc, char const *argv[])
 
 		read_file(argv[2],points);
 
-		std::cout << "Points read from file:" << std::endl;
-		for(auto p : points)
-			p->print();
+		std::cout << "Reading points from file..." << std::endl;
 		
-		if(*argv[1] == 'G')
-			graham_scan(points);	
-		else if(*argv[1] == 'J')
+		std::string algo;
+
+		if(*argv[1] == 'G'){
+			graham_scan(points);
+			algo = "Graham scan";	
+		}
+		else if(*argv[1] == 'J'){
 			jarvis_march(points);
-		else if(*argv[1] == 'Q')
-			quickhull(points);		
+			algo = "Jarvis march";
+		}
+		else if(*argv[1] == 'Q'){
+			quickhull(points);	
+			algo = "Quick hull";	
+		}
+
+		std::cout << "Algorithm chosen: " << algo << std::endl;
+
 
 	}
 	
@@ -50,6 +61,14 @@ int main(int argc, char const *argv[])
 
 void graham_scan(points_list& points)
 {
+	if(points.size() < 3)
+		return;
+	else if(points.size() == 3){
+		print_file("hull_G.txt",points);
+		return;
+	}
+
+	auto start = std::chrono::high_resolution_clock::now();
 	//find p0
 	auto min_y = std::min_element(points.begin(), points.end(),
 				[] (point* const p1, point* const p2)
@@ -96,7 +115,7 @@ void graham_scan(points_list& points)
 		point* v1 = find_vect(hull[hull.size() - 2],hull.back());
 		point* v2 = find_vect(hull.back(), points[i]);
 
-		while(vec_direction(v1,v2) < 0){
+		while(vec_direction(v1,v2) <= 0){
 			hull.pop_back();
 			
 			v1 = find_vect(hull[hull.size() - 2],hull.back());
@@ -106,22 +125,31 @@ void graham_scan(points_list& points)
 		hull.push_back(points[i]);
 	}
 
-	std::cout << "convex hull points" << std::endl;
-	for(auto point : hull)
-		point->print();
+	auto stop = std::chrono::high_resolution_clock::now();
 
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+	std::cout << "Execution time: " << duration.count()<< " microseconds" << std::endl;
+
+	print_file("hull_G.txt",hull);
 }
 
 void jarvis_march(points_list& points)
 {
-	//find left most point
-	point* p0 = points[0];
-
-	for(auto point : points)
-	{
-		if(point->get_x() < p0->get_x())
-			p0 = point;
+	if(points.size() < 3)
+		return;
+	else if(points.size() == 3){
+		print_file("hull_J.txt",points);
+		return;
 	}
+
+	auto start = std::chrono::high_resolution_clock::now();
+	//find left most point
+	point* p0 = *(std::min_element(points.begin(),points.end(),
+					[](point* p1, point* p2){
+						return p1->get_x() < p2->get_x(); 
+					}));
+	
 
 	points_list hull;
 
@@ -138,20 +166,26 @@ void jarvis_march(points_list& points)
 
 		point* v2 = nullptr;
 
+		if(end_of_hull(p0,curr,points))
+			break;
+
 		for(auto point : points)
 		{
 			if(std::find(hull.begin(), hull.end(),point) != hull.end())
 				continue;
 
-			v2 = find_vect(curr,point);
+			// v2 = find_vect(curr,point);
 			
 
 			if(polar == 0){
-				polar = polar_angle(v1,v2);
+				polar = polar_angle(curr,point);
+				hull_point = point;
 			} else {
-				if(polar_angle(v1,v2) < polar)
+				float new_polar = polar_angle(curr,point);
+
+				if(new_polar < polar)
 				{
-					polar = polar_angle(v1,v2);
+					polar = new_polar;
 					hull_point = point; 
 				}
 			}
@@ -163,15 +197,28 @@ void jarvis_march(points_list& points)
 			hull.push_back(hull_point);
 	}
 
-	for(auto point : hull)
-		point->print();
+	auto stop = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+	std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
+
+	print_file("hull_J.txt",hull);
 }
 
 
 void quickhull(points_list& points)
 {
-	if(points.size() < 2)
+	if(points.size() < 3)
 		return;
+	else if(points.size() == 3){
+		print_file("hull_Q.txt",points);
+		return;
+	}
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	
 
 	std::vector<point*> hull;
 
@@ -221,8 +268,13 @@ void quickhull(points_list& points)
 	//find bottom half points on hull
 	findhull_bottom(hull,below_l,std::make_pair(leftmost_x,rightmost_x));
 
-	for(auto p : hull)
-		p->print();
+	auto stop = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+	std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
+
+	print_file("hull_Q.txt",hull);
 
 }
 

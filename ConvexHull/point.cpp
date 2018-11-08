@@ -2,6 +2,8 @@
 #include <iostream>
 #include <math.h>
 
+#define PI 3.14159265359
+
 
 bool
 point::operator==(const point& right)
@@ -28,10 +30,18 @@ int vec_direction(point* v1,point* v2)
 
 float polar_angle(point* v1, point* v2)
 {
-	int dot = (v1->get_x() * v2->get_x()) + (v1->get_y() * v2->get_y());
-	float mag = magnitude(v1) * magnitude(v2);
+	// int dot = (v1->get_x() * v2->get_x()) + (v1->get_y() * v2->get_y());
+	// float mag  = magnitude(v1) * magnitude(v2);
+	// int det = (v1->get_x() * v2->get_y()) - (v1->get_y() * v2->get_x());
+	// float degrees = acos(dot / mag) * (180.0 /  PI); 
 
-	return acos(dot / mag) * (180.0 / 3.14159265);
+	int x_diff = v2->get_x() - v1->get_x();
+	int y_diff = v2->get_y() - v1->get_y();
+
+	float degrees = atan2(static_cast<float>(x_diff),
+					static_cast<float>(y_diff)) * (180.0/PI);
+
+	return degrees > 0.0 ? degrees : 360.0 + degrees;
 }
 
 float magnitude(point* p)
