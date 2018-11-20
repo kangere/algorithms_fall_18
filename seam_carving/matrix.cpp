@@ -1,6 +1,7 @@
 #include "matrix.hpp"
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 matrix::matrix()
 :matrix(10,10)
@@ -56,4 +57,72 @@ matrix::print() const
 
 		std::cout << std::endl;
 	}
+}
+
+coord get_vertical_seam(matrix& energy)
+{
+	coord vertical_seam;
+
+
+	for(int row = (energy.height() -1); row >= 0; row--)
+	{
+		
+		int min;
+		std::pair<int,int> min_c;
+
+		if(row == (energy.height() -1)){
+
+			min = energy.get(0,row);
+			min_c = std::make_pair(0,row);
+
+			for(int col = 1; col < energy.width(); col++)
+			{
+				if(energy.get(col,row) < min){
+					min = energy.get(col,row);
+					min_c = std::make_pair(col,row);
+				}
+			}
+
+		} else {
+			std::pair<int,int> min_below = vertical_seam.back();
+
+			int start,stop;
+
+			if(min_below.first == 0){
+				start = min_below.first;
+				stop = min_below.first + 1;
+			} else if( min_below.first == (energy.width() - 1)){
+				start = min_below.first -1;
+				stop = min_below.first;
+			} else {
+				start = min_below.first - 1;
+				stop = min_below.first + 1;
+			}
+
+			//get leftmost point above minimum energy below
+			min = energy.get(start,row);
+
+			min_c = std::make_pair(start,row);
+
+			for(int col = start; col <= stop; col++){
+
+				if(energy.get(col,row) < min){
+					min = energy.get(col,row);
+					min_c = std::make_pair(col,row);
+				}
+			}
+
+			
+
+		}
+			
+		//insert coordinate to vertical seam
+		vertical_seam.push_back(min_c);
+		
+	}
+
+	//reverse order to start from top
+	std::reverse(vertical_seam.begin(), vertical_seam.end());
+
+	return vertical_seam;
 }

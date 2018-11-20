@@ -4,9 +4,13 @@
 #include <string>
 #include <cmath>
 #include "matrix.hpp"
+#include <vector>
+#include <utility>
+
 
 matrix read_file(char const* filename);
 matrix min_energy(matrix& m);
+matrix remove_seam(matrix&,matrix&);
 
 
 
@@ -21,6 +25,8 @@ int main(int argc, char** argv)
 	matrix min_mat = min_energy(mat);
 	std::cout << "Cumulateive energy for vertical seam: \n";
 	min_mat.print();
+
+	remove_seam(min_mat,mat).print();
 
 
 	return 0;
@@ -128,4 +134,39 @@ matrix min_energy(matrix& m)
 	}
 
 	return new_mat;
+}
+
+matrix remove_seam(matrix& energy, matrix& actual)
+{
+	if(energy.capacity() <= 0 or actual.capacity() <= 0 
+		or energy.capacity() != actual.capacity())
+		return matrix();
+
+	coord vseam = get_vertical_seam(energy);
+
+	
+	for(auto& lowest : vseam)
+		std::cout << lowest.first << " " << lowest.second << std::endl;
+
+	matrix reduced(actual.width() - 1,actual.height());
+
+	for(int row = 0; row < reduced.height(); row++){
+		
+		int offset = 0;
+
+		for(int col = 0; col < reduced.width(); col++){
+
+			auto iter = std::find(vseam.begin(), vseam.end(),std::make_pair(col,row));
+			
+			if(iter  != vseam.end())
+				offset = 1;
+				
+			
+
+			reduced.insert(actual.get(col+offset,row),col,row);
+			
+		}		
+	}
+
+	return reduced;
 }

@@ -1,5 +1,13 @@
 #pragma once
 
+#include <vector>
+#include <utility>
+
+//store coordinates of least vertical seam
+//in vector of pairs containing x,y values
+//for each point
+using coord = std::vector<std::pair<int,int>>;
+
 
 //holds only ints
 //could be extended to become more generic
@@ -36,3 +44,10 @@ public:
 	//prints content of matrix
 	void print() const;
 };
+
+
+//returns a vertical seam of an energy matrix
+coord get_vertical_seam(matrix& energy);
+
+//return a transposed version of the matrix
+matrix transpose(matrix& mat);
