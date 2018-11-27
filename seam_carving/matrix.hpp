@@ -14,8 +14,8 @@ using coord = std::vector<std::pair<int,int>>;
 //using templates
 class matrix{
 private:
-	const int w;
-	const int h;
+	int w;
+	int h;
 
 	int **data;
 
@@ -43,6 +43,10 @@ public:
 
 	//prints content of matrix
 	void print() const;
+
+
+	//operator overloads
+	matrix& operator=(const matrix& rhs);
 };
 
 
@@ -51,3 +55,15 @@ coord get_vertical_seam(matrix& energy);
 
 //return a transposed version of the matrix
 matrix transpose(matrix& mat);
+
+//Calculate energy of pixels in matrix
+matrix min_energy(matrix& m);
+
+
+//removes one vertical seam from actual
+//using energies from energy
+matrix remove_seam(matrix& energy, matrix& actual);
+
+
+//Reads a bng file and stores pixel in a matrix
+matrix read_file(char const* filename);
