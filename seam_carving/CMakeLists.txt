@@ -10,4 +10,4 @@ add_executable(seam
 	matrix.cpp)
 
 add_custom_command(TARGET seam POST_BUILD 
-					COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/excelTestCase.pgm $<TARGET_FILE_DIR:seam>)
+					COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test.pgm $<TARGET_FILE_DIR:seam>)

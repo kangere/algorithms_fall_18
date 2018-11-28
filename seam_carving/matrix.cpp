@@ -15,22 +15,20 @@ matrix::matrix()
 matrix::matrix(int total_w, int total_h)
 :w(total_w), h(total_h)
 {
-	data = new int*[h];
-
-	for(int i = 0; i < h; i++)
-		data[i] = new int[w];
+	size = w * h;
+	data.resize(h,std::vector<int>(w,0));
 
 }
 
 //copy constructor
 matrix::matrix(const matrix& copy)
-:matrix(copy.width(),copy.height())
 {
+	w = copy.width();
+	h = copy.height();
 
-	for(int row = 0; row < h; row++){
-		for(int col = 0; col < w; col++)
-			data[col][row] = copy.get(col,row);
-	}
+	size = w * h;
+
+	std::copy(copy.data.begin(),copy.data.end(),std::back_inserter(data));
 }
 
 void
@@ -39,7 +37,7 @@ matrix::insert(int elem,int x, int y)
 	assert(x < w);
 	assert(y < h);
 
-	data[x][y] = elem;
+	data[y][x] = elem;
 }
 
 
@@ -49,7 +47,7 @@ matrix::get(int x, int y) const
 	assert(x < w);
 	assert(y < h);
 
-	return data[x][y];
+	return data.at(y).at(x);
 }
 
 void 
@@ -57,7 +55,7 @@ matrix::print() const
 {
 	for(int row = 0; row < h; row++){
 		for(int col = 0; col < w; col++){
-			std::cout << data[col][row] << " ";
+			std::cout << get(col,row) << " ";
 		}
 
 		std::cout << std::endl;
@@ -68,24 +66,13 @@ matrix&
 matrix::operator=(const matrix& rhs){
 
 	if(this != &rhs){
-		delete [] data;
-		data = nullptr;
-		
-		//intialise member variables
-		w = rhs.w;
-		h = rhs.h;
+		w = rhs.width();
+		h = rhs.height();
+		size = rhs.size;
 
-		//initialise array
-		data = new int*[h];
-		for(int i = 0; i < h; i++)
-			data[i] = new int[w];
-		
-		for(int row = 0; row < h; row++){
-			for(int col = 0; col < w; col++){
-				data[col][row] = rhs.data[col][row];
-			}
-		}
+		data = rhs.data;
 	}
+	
 
 	return *this;
 }
@@ -218,8 +205,6 @@ matrix min_energy(matrix& m)
 		}
 	}
 
-	std::cout << "energy matrix: \n";
-	new_mat.print();
 
 	//next calculate least cumulative energy from top to bottom
 	for(int row = 1; row < height; row++){
@@ -255,9 +240,6 @@ matrix remove_seam(matrix& energy, matrix& actual)
 
 	coord vseam = get_vertical_seam(energy);
 
-	
-	for(auto& lowest : vseam)
-		std::cout << lowest.first << " " << lowest.second << std::endl;
 
 	matrix reduced(actual.width() - 1,actual.height());
 

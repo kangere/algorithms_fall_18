@@ -31,7 +31,8 @@ int main(int argc, char const* argv[])
 
 	while(v_seams > 0){
 		matrix energy = min_energy(mat);
-		mat = remove_seam(energy,mat);
+		matrix temp = remove_seam(energy,mat);
+		mat = temp;
 		--v_seams;
 	}
 
@@ -40,7 +41,8 @@ int main(int argc, char const* argv[])
 
 	while(h_seams > 0){
 		matrix energy = min_energy(tran);
-		tran = remove_seam(energy,tran);
+		matrix temp = remove_seam(energy,tran);
+		tran = temp;
 		--h_seams;
 	}
 

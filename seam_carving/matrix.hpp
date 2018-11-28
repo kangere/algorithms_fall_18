@@ -16,15 +16,14 @@ class matrix{
 private:
 	int w;
 	int h;
+	int size;
 
-	int **data;
+	std::vector<std::vector<int>> data;
 
 public:
 	matrix(); //default constructor, matrix has fixed size of 10X10
 	matrix(int total_w, int total_h);
 	matrix(const matrix&); //copy constructor
-
-	~matrix(){ delete [] data;}
 
 	//returns max width of matrix
 	int width() const {return w;}
@@ -39,7 +38,7 @@ public:
 	int get(int x, int y) const;
 
 	//returns max number of numbers matrix can hold
-	int capacity() const {return w * h;} 
+	int capacity() const {return size;} 
 
 	//prints content of matrix
 	void print() const;
