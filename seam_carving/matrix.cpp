@@ -8,12 +8,12 @@
 
 
 matrix::matrix()
-:matrix(10,10)
+:matrix(10,10,0)
 {}
 
 
-matrix::matrix(int total_w, int total_h)
-:w(total_w), h(total_h)
+matrix::matrix(int total_w, int total_h, int max)
+:w(total_w), h(total_h), max_grey(max)
 {
 	size = w * h;
 	data.resize(h,std::vector<int>(w,0));
@@ -25,6 +25,7 @@ matrix::matrix(const matrix& copy)
 {
 	w = copy.width();
 	h = copy.height();
+	max_grey = copy.max();
 
 	size = w * h;
 
@@ -150,7 +151,7 @@ matrix transpose(matrix& mat)
 	int new_width = mat.height();
 	int new_height = mat.width();
 
-	matrix new_mat(new_width,new_height);
+	matrix new_mat(new_width,new_height,mat.max());
 
 	for(int row = 0; row < new_height; row++){
 		for(int col = 0; col < new_width; col++){
@@ -165,13 +166,13 @@ matrix transpose(matrix& mat)
 }
 
 
-matrix min_energy(matrix& m)
+matrix least_cumulative_energy(matrix& m)
 {
 	int width = m.width();
 	int height = m.height();
 
 	//create matrix with energies
-	matrix new_mat(width,height);
+	matrix new_mat(width,height,m.max());
 
 	//calculate energy of pixels and it to new matrix
 	for(int row = 0; row < height; row++){
@@ -241,7 +242,7 @@ matrix remove_seam(matrix& energy, matrix& actual)
 	coord vseam = get_vertical_seam(energy);
 
 
-	matrix reduced(actual.width() - 1,actual.height());
+	matrix reduced(actual.width() - 1,actual.height(),actual.max());
 
 	for(int row = 0; row < reduced.height(); row++){
 		
@@ -289,7 +290,7 @@ matrix read_file(char const* filename)
 	//read in first lines
 	file >> width >> height >> max_grey;
 
-	matrix mat(width,height);
+	matrix mat(width,height,max_grey);
 
 	//read all pixels to matrix
 	for(int row = 0; row < height; row++){
@@ -303,5 +304,34 @@ matrix read_file(char const* filename)
 
 
 	return mat;
+}
+
+void write_file(matrix& mat)
+{
+
+	std::fstream file("image_processed.pgm",std::ios::out|
+											std::ios::binary|
+											std::ios::trunc);
+
+	if(!file.is_open()){
+		std::cout << "Could Not open output file" << std::endl;
+		return;
+	}
+
+	file << "P2" << "\n";
+	file << mat.width() << " " << mat.height() << "\n";
+	file << mat.max() << "\n";
+
+	for(int row = 0; row < mat.height(); row++){
+		for(int col = 0; col < mat.width(); col++){
+			file << mat.get(col,row);
+			file << " ";
+		}
+
+		//remove trailing whitespace
+		auto pos = file.tellp();
+		file.seekp(pos - 1);
+		file << "\n";
+	}
 }
 

@@ -25,30 +25,37 @@ int main(int argc, char const* argv[])
 	mat.print();
 	
 	//get leat cumulative energy for matrix
-	matrix min_mat = min_energy(mat);
+	matrix min_mat = least_cumulative_energy(mat);
 	std::cout << "Cumulateive energy for vertical seam: \n";
 	min_mat.print();
 
+
 	while(v_seams > 0){
-		matrix energy = min_energy(mat);
+		matrix energy = least_cumulative_energy(mat);
 		matrix temp = remove_seam(energy,mat);
 		mat = temp;
 		--v_seams;
 	}
 
-	//transpose matrix to remove horizontal seams
-	matrix tran = transpose(mat);
+	if(h_seams > 0){
 
-	while(h_seams > 0){
-		matrix energy = min_energy(tran);
-		matrix temp = remove_seam(energy,tran);
-		tran = temp;
-		--h_seams;
+		//transpose matrix to remove horizontal seams
+		matrix tran = transpose(mat);
+
+		while(h_seams > 0){
+			matrix energy = least_cumulative_energy(tran);
+			matrix temp = remove_seam(energy,tran);
+			tran = temp;
+			--h_seams;
+		}
+
+		mat = transpose(tran);	
 	}
+	
 
 	//tranpose matrix back 
 	std::cout << "Final matrix" << std::endl;
-	transpose(tran).print();
+	write_file(mat);
 
 	return 0;
 	
